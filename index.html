@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freight Pricing Matrix</title>
+    <style>
+        table {
+            width: 100%; /* Adjusted width to fit all columns */
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .result {
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .column-select {
+            margin: 20px;
+            text-align: center;
+        }
+        .summary {
+            text-align: center;
+            font-size: 1em;
+            margin: 20px 0;
+        }
+        .selected {
+            background-color: yellow;
+        }
+    </style>
+    <script>
+        let selectedColumn = 'Sydney';
+        let clickedModels = {};
+
+        function selectColumn(column) {
+            selectedColumn = column;
+            document.getElementById('selectedColumn').innerText = column;
+            document.getElementById('result').innerText = "$0.00";
+            document.getElementById('resultTop').innerText = "$0.00";
+            clickedModels = {};
+            document.getElementById('summary').innerText = '';
+            updateTableHighlight();
+        }
+
+        function showPrice(model, prices) {
+            let price = prices[selectedColumn] || '$0.00';
+            if (price === '-') return;
+
+            let resultDiv = document.getElementById("result");
+            let resultDivTop = document.getElementById("resultTop");
+            let summaryDiv = document.getElementById("summary");
+            let priceValue = parseFloat(price.replace('$', '').replace(',', ''));
+            let currentTotal = parseFloat(resultDiv.innerText.replace('$', '').replace(',', '') || 0);
+            let newTotal = currentTotal + priceValue;
+
+            resultDiv.innerText = "$" + newTotal.toFixed(2);
+            resultDivTop.innerText = "$" + newTotal.toFixed(2);
+
+            if (!clickedModels[model]) {
+                clickedModels[model] = { price: priceValue, qty: 0 };
+            }
+            clickedModels[model].qty += 1;
+
+            let summaryText = "Clicked Models: " + Object.keys(clickedModels).map(m => `${m} (Qty: ${clickedModels[m].qty})`).join(', ');
+            summaryDiv.innerText = summaryText;
+        }
+
+        function updateTableHighlight() {
+            let table = document.querySelector('table');
+            let columnIndex;
+            switch (selectedColumn) {
+                case 'Sydney':
+                    columnIndex = 1;
+                    break;
+                case 'Melb./ Brisbane':
+                    columnIndex = 2;
+                    break;
+                case 'Wgong, Newcstle, ACT, SA':
+                    columnIndex = 3;
+                    break;
+                case 'NSW, VIC':
+                    columnIndex = 4;
+                    break;
+                case 'Cairns, Twnsville':
+                    columnIndex = 5;
+                    break;
+                case 'QLD':
+                    columnIndex = 6;
+                    break;
+                case 'Perth':
+                    columnIndex = 7;
+                    break;
+                case 'WA, NT':
+                    columnIndex = 8;
+                    break;
+                case 'TAS':
+                    columnIndex = 9;
+                    break;
+                default:
+                    columnIndex = -1;
+            }
+
+            for (let i = 0; i < table.rows.length; i++) {
+                let row = table.rows[i];
+                for (let j = 1; j < row.cells.length; j++) {
+                    row.cells[j].classList.remove('selected');
+                }
+                if (columnIndex > 0 && row.cells[columnIndex]) {
+                    row.cells[columnIndex].classList.add('selected');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateTableHighlight();
+        });
+    </script>
+</head>
+<body>
+    <h1 style="text-align: center;">Freight Pricing Matrix</h1>
+    <h2 style="text-align: center;">Date: 17 Feb 2023</h2>
+    
+    <div class="column-select">
+        <button onclick="selectColumn('Sydney')">Sydney</button>
+        <button onclick="selectColumn('Melb./ Brisbane')">Melb./ Brisbane</button>
+        <button onclick="selectColumn('Wgong, Newcstle, ACT, SA')">Wgong, Newcstle, ACT, SA</button>
+        <button onclick="selectColumn('NSW, VIC')">NSW, VIC</button>
+        <button onclick="selectColumn('Cairns, Twnsville')">Cairns, Twnsville</button>
+        <button onclick="selectColumn('QLD')">QLD</button>
+        <button onclick="selectColumn('Perth')">Perth</button>
+        <button onclick="selectColumn('WA, NT')">WA, NT</button>
+        <button onclick="selectColumn('TAS')">TAS</button>
+        <p>PROJECT LOCATION: <span id="selectedColumn">Sydney</span></p>
+    </div>
+
+    <div class="result">Total Price: <span id="resultTop">$0.00</span></div>
+
+    <table>
+        <tr>
+            <th>MODEL</th>
+            <th>Sydney</th>
+            <th>Melb./ Brisbane</th>
+            <th>Wgong, Newcstle, ACT, SA</th>
+            <th>NSW, VIC</th>
+            <th>Cairns, Twnsville</th>
+            <th>QLD</th>
+            <th>Perth</th>
+            <th>WA, NT</th>
+            <th>TAS</th>
+        <tr><td><button onclick="showPrice('MDP14-SS', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$80.00', 'Wgong, Newcstle, ACT, SA': '$90.00', 'NSW, VIC': '$90.00', 'Cairns, Twnsville': '$90.00', 'QLD': '$90.00', 'Perth': '$110.00', 'WA, NT': '$110.00', 'TAS': '$140.00' })">MDP14-SS</button></td><td>$55.00</td><td>$80.00</td><td>$90.00</td><td>$90.00</td><td>$90.00</td><td>$90.00</td><td>$110.00</td><td>$110.00</td><td>$140.00</td></tr>
+        <tr><td>EXPANSION TANK</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td><button onclick="showPrice('10AF35', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$50.00', 'Wgong, Newcstle, ACT, SA': '$55.00', 'NSW, VIC': '$80.00', 'Cairns, Twnsville': '$65.00', 'QLD': '$90.00', 'Perth': '$65.00', 'WA, NT': '$100.00', 'TAS': '$100.00' })">10AF35</button></td><td>$55.00</td><td>$50.00</td><td>$55.00</td><td>$80.00</td><td>$65.00</td><td>$90.00</td><td>$65.00</td><td>$100.00</td><td>$100.00
+        <tr><td><button onclick="showPrice('10AF80', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$70.00', 'Wgong, Newcstle, ACT, SA': '$90.00', 'NSW, VIC': '$155.00', 'Cairns, Twnsville': '$115.00', 'QLD': '$185.00', 'Perth': '$105.00', 'WA, NT': '$210.00', 'TAS': '$200.00' })">10AF80</button></td><td>$55.00</td><td>$70.00</td><td>$90.00</td><td>$155.00</td><td>$115.00</td><td>$185.00</td><td>$105.00</td><td>$210.00</td><td>$200.00</td></tr>
+        <tr><td><button onclick="showPrice('10AF150', { 'Sydney': '$75.00', 'Melb./ Brisbane': '$85.00', 'Wgong, Newcstle, ACT, SA': '$100.00', 'NSW, VIC': '$225.00', 'Cairns, Twnsville': '$160.00', 'QLD': '$250.00', 'Perth': '$150.00', 'WA, NT': '$300.00', 'TAS': '$270.00' })">10AF150</button></td><td>$75.00</td><td>$85.00</td><td>$100.00</td><td>$225.00</td><td>$160.00</td><td>$250.00</td><td>$150.00</td><td>$300.00</td><td>$270.00</td></tr>
+        <tr><td><button onclick="showPrice('10AF300', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$130.00', 'Wgong, Newcstle, ACT, SA': '$195.00', 'NSW, VIC': '$410.00', 'Cairns, Twnsville': '$275.00', 'QLD': '$505.00', 'Perth': '$255.00', 'WA, NT': '$600.00', 'TAS': '$570.00' })">10AF300</button></td><td>$150.00</td><td>$130.00</td><td>$195.00</td><td>$410.00</td><td>$275.00</td><td>$505.00</td><td>$255.00</td><td>$600.00</td><td>$570.00</td></tr>
+        <tr><td><button onclick="showPrice('10AF500', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$180.00', 'Wgong, Newcstle, ACT, SA': '$225.00', 'NSW, VIC': '$630.00', 'Cairns, Twnsville': '$415.00', 'QLD': '$695.00', 'Perth': '$380.00', 'WA, NT': '$855.00', 'TAS': '$765.00' })">10AF500</button></td><td>$150.00</td><td>$180.00</td><td>$225.00</td><td>$630.00</td><td>$415.00</td><td>$695.00</td><td>$380.00</td><td>$855.00</td><td>$765.00</td></tr>
+        <tr><td><button onclick="showPrice('10AF750', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$210.00', 'Wgong, Newcstle, ACT, SA': '$290.00', 'NSW, VIC': '$415.00', 'Cairns, Twnsville': '$475.00', 'QLD': '$780.00', 'Perth': '$465.00', 'WA, NT': '$1,025.00', 'TAS': '$830.00' })">10AF750</button></td><td>$150.00</td><td>$210.00</td><td>$290.00</td><td>$415.00</td><td>$475.00</td><td>$780.00</td><td>$465.00</td><td>$1,025.00</td><td>$830.00</td></tr>
+        <tr><td><button onclick="showPrice('10AFM1000', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$590.00', 'Wgong, Newcstle, ACT, SA': '$845.00', 'NSW, VIC': '$1,265.00', 'Cairns, Twnsville': '$1,445.00', 'QLD': '$2,450.00', 'Perth': '$1,415.00', 'WA, NT': '$3,245.00', 'TAS': '$2,610.00' })">10AFM1000</button></td><td>$150.00</td><td>$590.00</td><td>$845.00</td><td>$1,265.00</td><td>$1,445.00</td><td>$2,450.00</td><td>$1,415.00</td><td>$3,245.00</td><td>$2,610.00</td></tr>
+        <tr><td>OPTIVENT</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td><button onclick="showPrice('OVAD200-SS', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$175.00', 'Wgong, Newcstle, ACT, SA': '$275.00', 'NSW, VIC': '$600.00', 'Cairns, Twnsville': '$395.00', 'QLD': '$740.00', 'Perth': '$360.00', 'WA, NT': '$880.00', 'TAS': '$840.00' })">OVAD200-SS</button></td><td>$150.00</td><td>$175.00</td><td>$275.00</td><td>$600.00</td><td>$395.00</td><td>$740.00</td><td>$360.00</td><td>$880.00</td><td>$840.00</td></tr>
+                <tr><td><button onclick="showPrice('OVAD250-SS', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$235.00', 'Wgong, Newcstle, ACT, SA': '$295.00', 'NSW, VIC': '$850.00', 'Cairns, Twnsville': '$555.00', 'QLD': '$945.00', 'Perth': '$510.00', 'WA, NT': '$1,160.00', 'TAS': '$1,035.00' })">OVAD250-SS</button></td><td>$150.00</td><td>$235.00</td><td>$295.00</td><td>$850.00</td><td>$555.00</td><td>$945.00</td><td>$510.00</td><td>$1,160.00</td><td>$1,035.00</td></tr>
+        <tr><td><button onclick="showPrice('OVAD300-SS', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$395.00', 'Wgong, Newcstle, ACT, SA': '$505.00', 'NSW, VIC': '$1,505.00', 'Cairns, Twnsville': '$975.00', 'QLD': '$1,675.00', 'Perth': '$885.00', 'WA, NT': '$2,065.00', 'TAS': '$1,840.00' })">OVAD300-SS</button></td><td>$150.00</td><td>$395.00</td><td>$505.00</td><td>$1,505.00</td><td>$975.00</td><td>$1,675.00</td><td>$885.00</td><td>$2,065.00</td><td>$1,840.00</td></tr>
+        <tr><td><button onclick="showPrice('OVAD400-SS', { 'Sydney': '$180.00', 'Melb./ Brisbane': '$800.00', 'Wgong, Newcstle, ACT, SA': '-', 'NSW, VIC': '-', 'Cairns, Twnsville': '-', 'QLD': '-', 'Perth': '-', 'WA, NT': '-', 'TAS': '-' })">OVAD400-SS</button></td><td>$180.00</td><td>$800.00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>BUFFER TANK</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td><button onclick="showPrice('AVBT300', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$275.00', 'Wgong, Newcstle, ACT, SA': '$450.00', 'NSW, VIC': '$1,020.00', 'Cairns, Twnsville': '$665.00', 'QLD': '$1,270.00', 'Perth': '$605.00', 'WA, NT': '$1,515.00', 'TAS': '$1,440.00' })">AVBT300</button></td><td>$150.00</td><td>$275.00</td><td>$450.00</td><td>$1,020.00</td><td>$665.00</td><td>$1,270.00</td><td>$605.00</td><td>$1,515.00</td><td>$1,440.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT500', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$440.00', 'Wgong, Newcstle, ACT, SA': '$570.00', 'NSW, VIC': '$1,710.00', 'Cairns, Twnsville': '$1,105.00', 'QLD': '$1,905.00', 'Perth': '$1,005.00', 'WA, NT': '$2,350.00', 'TAS': '$2,090.00' })">AVBT500</button></td><td>$150.00</td><td>$440.00</td><td>$570.00</td><td>$1,710.00</td><td>$1,105.00</td><td>$1,905.00</td><td>$1,005.00</td><td>$2,350.00</td><td>$2,090.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT750', { 'Sydney': '$165.00', 'Melb./ Brisbane': '$535.00', 'Wgong, Newcstle, ACT, SA': '$690.00', 'NSW, VIC': '$2,095.00', 'Cairns, Twnsville': '$1,350.00', 'QLD': '$2,330.00', 'Perth': '$1,225.00', 'WA, NT': '$2,880.00', 'TAS': '$2,565.00' })">AVBT750</button></td><td>$165.00</td><td>$535.00</td><td>$690.00</td><td>$2,095.00</td><td>$1,350.00</td><td>$2,330.00</td><td>$1,225.00</td><td>$2,880.00</td><td>$2,565.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT1000', { 'Sydney': '$165.00', 'Melb./ Brisbane': '$750.00', 'Wgong, Newcstle, ACT, SA': '$1,080.00', 'NSW, VIC': '$1,615.00', 'Cairns, Twnsville': '$1,850.00', 'QLD': '$3,140.00', 'Perth': '$1,810.00', 'WA, NT': '$4,170.00', 'TAS': '$3,350.00' })">AVBT1000</button></td><td>$165.00</td><td>$750.00</td><td>$1,080.00</td><td>$1,615.00</td><td>$1,850.00</td><td>$3,140.00</td><td>$1,810.00</td><td>$4,170.00</td><td>$3,350.00</td></tr>
+               <tr><td><button onclick="showPrice('AVBT1500', { 'Sydney': '$165.00', 'Melb./ Brisbane': '$920.00', 'Wgong, Newcstle, ACT, SA': '$955.00', 'NSW, VIC': '$1,905.00', 'Cairns, Twnsville': '$2,180.00', 'QLD': '$3,905.00', 'Perth': '$2,070.00', 'WA, NT': '$4,710.00', 'TAS': '$3,730.00' })">AVBT1500</button></td><td>$165.00</td><td>$920.00</td><td>$955.00</td><td>$1,905.00</td><td>$2,180.00</td><td>$3,905.00</td><td>$2,070.00</td><td>$4,710.00</td><td>$3,730.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT2000', { 'Sydney': '$180.00', 'Melb./ Brisbane': '$1,255.00', 'Wgong, Newcstle, ACT, SA': '$1,820.00', 'NSW, VIC': '$2,740.00', 'Cairns, Twnsville': '$3,145.00', 'QLD': '$5,355.00', 'Perth': '$3,075.00', 'WA, NT': '$7,115.00', 'TAS': '$5,710.00' })">AVBT2000</button></td><td>$180.00</td><td>$1,255.00</td><td>$1,820.00</td><td>$2,740.00</td><td>$3,145.00</td><td>$5,355.00</td><td>$3,075.00</td><td>$7,115.00</td><td>$5,710.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT3000', { 'Sydney': '$250.00', 'Melb./ Brisbane': '$1,335.00', 'Wgong, Newcstle, ACT, SA': '$1,410.00', 'NSW, VIC': '$3,135.00', 'Cairns, Twnsville': '$3,435.00', 'QLD': '$6,070.00', 'Perth': '$3,435.00', 'WA, NT': '$8,190.00', 'TAS': '$6,565.00' })">AVBT3000</button></td><td>$250.00</td><td>$1,335.00</td><td>$1,410.00</td><td>$3,135.00</td><td>$3,435.00</td><td>$6,070.00</td><td>$3,435.00</td><td>$8,190.00</td><td>$6,565.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT4000', { 'Sydney': '$300.00', 'Melb./ Brisbane': '$2,200.00', 'Wgong, Newcstle, ACT, SA': '$2,325.00', 'NSW, VIC': '$5,205.00', 'Cairns, Twnsville': '$5,710.00', 'QLD': '$10,105.00', 'Perth': '$5,710.00', 'WA, NT': '$13,645.00', 'TAS': '$10,935.00' })">AVBT4000</button></td><td>$300.00</td><td>$2,200.00</td><td>$2,325.00</td><td>$5,205.00</td><td>$5,710.00</td><td>$10,105.00</td><td>$5,710.00</td><td>$13,645.00</td><td>$10,935.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT5000', { 'Sydney': '$300.00', 'Melb./ Brisbane': '$2,200.00', 'Wgong, Newcstle, ACT, SA': '$2,325.00', 'NSW, VIC': '$5,205.00', 'Cairns, Twnsville': '$5,710.00', 'QLD': '$10,105.00', 'Perth': '$5,710.00', 'WA, NT': '$13,645.00', 'TAS': '$10,935.00' })">AVBT5000</button></td><td>$300.00</td><td>$2,200.00</td><td>$2,325.00</td><td>$5,205.00</td><td>$5,710.00</td><td>$10,105.00</td><td>$5,710.00</td><td>$13,645.00</td><td>$10,935.00</td></tr>
+        <tr><td><button onclick="showPrice('AVBT7500', { 'Sydney': '$365.00', 'Melb./ Brisbane': '$3,280.00', 'Wgong, Newcstle, ACT, SA': '$3,425.00', 'NSW, VIC': '$7,210.00', 'Cairns, Twnsville': '$8,140.00', 'QLD': '$14,570.00', 'Perth': '$7,870.00', 'WA, NT': '$18,325.00', 'TAS': '$14,565.00' })">AVBT7500</button></td><td>$365.00</td><td>$3,280.00</td><td>$3,425.00</td><td>$7,210.00</td><td>$8,140.00</td><td>$14,570.00</td><td>$7,870.00</td><td>$18,325.00</td><td>$14,565.00</td></tr>
+               <tr><td><button onclick="showPrice('AVBT10000', { 'Sydney': '$650.00', 'Melb./ Brisbane': '$4,360.00', 'Wgong, Newcstle, ACT, SA': '$4,525.00', 'NSW, VIC': '$9,215.00', 'Cairns, Twnsville': '$10,570.00', 'QLD': '$19,035.00', 'Perth': '$10,030.00', 'WA, NT': '$23,000.00', 'TAS': '$18,190.00' })">AVBT10000</button></td><td>$650.00</td><td>$4,360.00</td><td>$4,525.00</td><td>$9,215.00</td><td>$10,570.00</td><td>$19,035.00</td><td>$10,030.00</td><td>$23,000.00</td><td>$18,190.00</td></tr>
+        <tr><td>PALLETS/ PUMPSETS</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td><button onclick="showPrice('7.5kW', { 'Sydney': '$80.00', 'Melb./ Brisbane': '$120.00', 'Wgong, Newcstle, ACT, SA': '$195.00', 'NSW, VIC': '$440.00', 'Cairns, Twnsville': '$290.00', 'QLD': '$550.00', 'Perth': '$260.00', 'WA, NT': '$650.00', 'TAS': '$620.00' })">7.5kW</button></td><td>$80.00</td><td>$120.00</td><td>$195.00</td><td>$440.00</td><td>$290.00</td><td>$550.00</td><td>$260.00</td><td>$650.00</td><td>$620.00</td></tr>
+        <tr><td><button onclick="showPrice('15kW', { 'Sydney': '$120.00', 'Melb./ Brisbane': '$240.00', 'Wgong, Newcstle, ACT, SA': '$390.00', 'NSW, VIC': '$880.00', 'Cairns, Twnsville': '$575.00', 'QLD': '$1,095.00', 'Perth': '$525.00', 'WA, NT': '$1,305.00', 'TAS': '$1,240.00' })">15kW</button></td><td>$120.00</td><td>$240.00</td><td>$390.00</td><td>$880.00</td><td>$575.00</td><td>$1,095.00</td><td>$525.00</td><td>$1,305.00</td><td>$1,240.00</td></tr>
+        <tr><td><button onclick="showPrice('30kW', { 'Sydney': '$165.00', 'Melb./ Brisbane': '$445.00', 'Wgong, Newcstle, ACT, SA': '$570.00', 'NSW, VIC': '$1,720.00', 'Cairns, Twnsville': '$1,110.00', 'QLD': '$1,910.00', 'Perth': '$1,010.00', 'WA, NT': '$2,360.00', 'TAS': '$2,100.00' })">30kW</button></td><td>$165.00</td><td>$445.00</td><td>$570.00</td><td>$1,720.00</td><td>$1,110.00</td><td>$1,910.00</td><td>$1,010.00</td><td>$2,360.00</td><td>$2,100.00</td></tr>
+        <tr><td><button onclick="showPrice('75kW', { 'Sydney': '$220.00', 'Melb./ Brisbane': '$585.00', 'Wgong, Newcstle, ACT, SA': '$840.00', 'NSW, VIC': '$1,250.00', 'Cairns, Twnsville': '$1,435.00', 'QLD': '$2,425.00', 'Perth': '$1,400.00', 'WA, NT': '$3,215.00', 'TAS': '$2,585.00' })">75kW</button></td><td>$220.00</td><td>$585.00</td><td>$840.00</td><td>$1,250.00</td><td>$1,435.00</td><td>$2,425.00</td><td>$1,400.00</td><td>$3,215.00</td><td>$2,585.00</td></tr>
+        <tr><td><button onclick="showPrice('132kW', { 'Sydney': '$350.00', 'Melb./ Brisbane': '$765.00', 'Wgong, Newcstle, ACT, SA': '$1,105.00', 'NSW, VIC': '$1,655.00', 'Cairns, Twnsville': '$1,895.00', 'QLD': '$3,220.00', 'Perth': '$1,855.00', 'WA, NT': '$4,275.00', 'TAS': '$3,430.00' })">132kW</button></td><td>$350.00</td><td>$765.00</td><td>$1,105.00</td><td>$1,655.00</td><td>$1,895.00</td><td>$3,220.00</td><td>$1,855.00</td><td>$4,275.00</td><td>$3,430.00</td></tr>
+    </table>
+    
+    <div class="result">Total Price: <span id="result">$0.00</span></div>
+    <div class="summary"><span id="summary"></span></div>
+</body>
+</html>
