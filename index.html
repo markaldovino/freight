@@ -14,6 +14,7 @@
             border: 1px solid black;
             padding: 8px;
             text-align: center;
+            cursor: pointer; /* Add cursor pointer to th elements */
         }
         th {
             background-color: #f2f2f2;
@@ -23,10 +24,6 @@
             font-size: 1.2em;
             margin: 20px 0;
         }
-        .column-select {
-            margin: 20px;
-            text-align: center;
-        }
         .summary {
             text-align: center;
             font-size: 1em;
@@ -35,19 +32,25 @@
         .selected {
             background-color: skyblue;
         }
+        .copy-btn {
+            margin-left: 6px;
+            padding: 5px 6px;
+            font-size: 0.6em;
+            cursor: pointer;
+        }
     </style>
     <script>
         let selectedColumn = 'Sydney';
         let clickedModels = {};
 
-        function selectColumn(column) {
+        function selectColumn(column, columnIndex) {
             selectedColumn = column;
             document.getElementById('selectedColumn').innerText = column;
             document.getElementById('result').innerText = "$0.00";
             document.getElementById('resultTop').innerText = "$0.00";
             clickedModels = {};
             document.getElementById('summary').innerText = '';
-            updateTableHighlight();
+            updateTableHighlight(columnIndex);
         }
 
         function showPrice(model, prices) {
@@ -73,54 +76,31 @@
             summaryDiv.innerText = summaryText;
         }
 
-        function updateTableHighlight() {
+        function updateTableHighlight(columnIndex) {
             let table = document.querySelector('table');
-            let columnIndex;
-            switch (selectedColumn) {
-                case 'Sydney':
-                    columnIndex = 1;
-                    break;
-                case 'Melb./ Brisbane':
-                    columnIndex = 2;
-                    break;
-                case 'Wgong, Newcstle, ACT, SA':
-                    columnIndex = 3;
-                    break;
-                case 'NSW, VIC':
-                    columnIndex = 4;
-                    break;
-                case 'Cairns, Twnsville':
-                    columnIndex = 5;
-                    break;
-                case 'QLD':
-                    columnIndex = 6;
-                    break;
-                case 'Perth':
-                    columnIndex = 7;
-                    break;
-                case 'WA, NT':
-                    columnIndex = 8;
-                    break;
-                case 'TAS':
-                    columnIndex = 9;
-                    break;
-                default:
-                    columnIndex = -1;
-            }
 
             for (let i = 0; i < table.rows.length; i++) {
                 let row = table.rows[i];
                 for (let j = 1; j < row.cells.length; j++) {
                     row.cells[j].classList.remove('selected');
                 }
-                if (columnIndex > 0 && row.cells[columnIndex]) {
+                if (columnIndex >= 1 && row.cells[columnIndex]) {
                     row.cells[columnIndex].classList.add('selected');
                 }
             }
         }
 
+        function copyToClipboard() {
+            let totalPrice = document.getElementById("resultTop").innerText.replace('$', '');
+            navigator.clipboard.writeText(totalPrice).then(function() {
+                alert("Total Price copied to clipboard: " + totalPrice);
+            }, function(err) {
+                console.error("Could not copy text: ", err);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', (event) => {
-            updateTableHighlight();
+            updateTableHighlight(1); // Default to Sydney column
         });
     </script>
 </head>
@@ -129,32 +109,27 @@
     <h2 style="text-align: center;">Date: 17 Feb 2023</h2>
     
     <div class="column-select">
-        <button onclick="selectColumn('Sydney')">Sydney</button>
-        <button onclick="selectColumn('Melb./ Brisbane')">Melb./ Brisbane</button>
-        <button onclick="selectColumn('Wgong, Newcstle, ACT, SA')">Wgong, Newcstle, ACT, SA</button>
-        <button onclick="selectColumn('NSW, VIC')">NSW, VIC</button>
-        <button onclick="selectColumn('Cairns, Twnsville')">Cairns, Twnsville</button>
-        <button onclick="selectColumn('QLD')">QLD</button>
-        <button onclick="selectColumn('Perth')">Perth</button>
-        <button onclick="selectColumn('WA, NT')">WA, NT</button>
-        <button onclick="selectColumn('TAS')">TAS</button>
-        <p>PROJECT LOCATION: <span id="selectedColumn">Sydney</span></p>
+        <p>Select PROJECT LOCATION by clicking column title: <span id="selectedColumn">Sydney</span></p>
     </div>
 
-    <div class="result">Total Price: <span id="resultTop">$0.00</span></div>
+    <div class="result">
+        Total Price: <span id="resultTop">$0.00</span>
+        <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
 
     <table>
         <tr>
             <th>MODEL</th>
-            <th>Sydney</th>
-            <th>Melb./ Brisbane</th>
-            <th>Wgong, Newcstle, ACT, SA</th>
-            <th>NSW, VIC</th>
-            <th>Cairns, Twnsville</th>
-            <th>QLD</th>
-            <th>Perth</th>
-            <th>WA, NT</th>
-            <th>TAS</th>
+            <th onclick="selectColumn('Sydney', 1)">Sydney</th>
+            <th onclick="selectColumn('Melb./ Brisbane', 2)">Melb./ Brisbane</th>
+            <th onclick="selectColumn('Wgong, Newcstle, ACT, SA', 3)">Wgong, Newcstle, ACT, SA</th>
+            <th onclick="selectColumn('NSW, VIC', 4)">NSW, VIC</th>
+            <th onclick="selectColumn('Cairns, Twnsville', 5)">Cairns, Twnsville</th>
+            <th onclick="selectColumn('QLD', 6)">QLD</th>
+            <th onclick="selectColumn('Perth', 7)">Perth</th>
+            <th onclick="selectColumn('WA, NT', 8)">WA, NT</th>
+            <th onclick="selectColumn('TAS', 9)">TAS</th>
+        </tr>
         <tr><td><button onclick="showPrice('MDP14-SS', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$80.00', 'Wgong, Newcstle, ACT, SA': '$90.00', 'NSW, VIC': '$90.00', 'Cairns, Twnsville': '$90.00', 'QLD': '$90.00', 'Perth': '$110.00', 'WA, NT': '$110.00', 'TAS': '$140.00' })">MDP14-SS</button></td><td>$55.00</td><td>$80.00</td><td>$90.00</td><td>$90.00</td><td>$90.00</td><td>$90.00</td><td>$110.00</td><td>$110.00</td><td>$140.00</td></tr>
         <tr><td>EXPANSION TANK</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
         <tr><td><button onclick="showPrice('10AF35', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$50.00', 'Wgong, Newcstle, ACT, SA': '$55.00', 'NSW, VIC': '$80.00', 'Cairns, Twnsville': '$65.00', 'QLD': '$90.00', 'Perth': '$65.00', 'WA, NT': '$100.00', 'TAS': '$100.00' })">10AF35</button></td><td>$55.00</td><td>$50.00</td><td>$55.00</td><td>$80.00</td><td>$65.00</td><td>$90.00</td><td>$65.00</td><td>$100.00</td><td>$100.00
@@ -189,7 +164,9 @@
         <tr><td><button onclick="showPrice('132kW', { 'Sydney': '$350.00', 'Melb./ Brisbane': '$765.00', 'Wgong, Newcstle, ACT, SA': '$1,105.00', 'NSW, VIC': '$1,655.00', 'Cairns, Twnsville': '$1,895.00', 'QLD': '$3,220.00', 'Perth': '$1,855.00', 'WA, NT': '$4,275.00', 'TAS': '$3,430.00' })">132kW</button></td><td>$350.00</td><td>$765.00</td><td>$1,105.00</td><td>$1,655.00</td><td>$1,895.00</td><td>$3,220.00</td><td>$1,855.00</td><td>$4,275.00</td><td>$3,430.00</td></tr>
     </table>
     
-    <div class="result">Total Price: <span id="result">$0.00</span></div>
+    <div class="result">Total Price: <span id="result">$0.00</span>
+        <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
     <div class="summary"><span id="summary"></span></div>
 </body>
 </html>
