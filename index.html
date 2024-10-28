@@ -6,7 +6,7 @@
     <title>Freight Pricing Matrix</title>
     <style>
         table {
-            width: 100%; /* Adjusted width to fit all columns */
+            width: 100%;
             margin: 20px auto;
             border-collapse: collapse;
         }
@@ -14,28 +14,34 @@
             border: 1px solid black;
             padding: 8px;
             text-align: center;
-            cursor: pointer; /* Add cursor pointer to th elements */
+            cursor: pointer;
         }
         th {
             background-color: #f2f2f2;
         }
-        .result {
+        .fixed-summary {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            font-size: 1.1em;
             text-align: center;
-            font-size: 1.2em;
-            margin: 20px 0;
         }
-        .summary {
-            text-align: center;
+        .summary-item {
+            margin-top: 10px;
             font-size: 1em;
-            margin: 20px 0;
         }
         .selected {
             background-color: skyblue;
         }
         .copy-btn {
-            margin-left: 6px;
-            padding: 5px 6px;
-            font-size: 0.6em;
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 0.8em;
             cursor: pointer;
         }
     </style>
@@ -47,7 +53,6 @@
             selectedColumn = column;
             document.getElementById('selectedColumn').innerText = column;
             document.getElementById('result').innerText = "$0.00";
-            document.getElementById('resultTop').innerText = "$0.00";
             clickedModels = {};
             document.getElementById('summary').innerText = '';
             updateTableHighlight(columnIndex);
@@ -58,14 +63,12 @@
             if (price === '-') return;
 
             let resultDiv = document.getElementById("result");
-            let resultDivTop = document.getElementById("resultTop");
             let summaryDiv = document.getElementById("summary");
             let priceValue = parseFloat(price.replace('$', '').replace(',', ''));
             let currentTotal = parseFloat(resultDiv.innerText.replace('$', '').replace(',', '') || 0);
             let newTotal = currentTotal + priceValue;
 
             resultDiv.innerText = "$" + newTotal.toFixed(2);
-            resultDivTop.innerText = "$" + newTotal.toFixed(2);
 
             if (!clickedModels[model]) {
                 clickedModels[model] = { price: priceValue, qty: 0 };
@@ -91,7 +94,7 @@
         }
 
         function copyToClipboard() {
-            let totalPrice = document.getElementById("resultTop").innerText.replace('$', '');
+            let totalPrice = document.getElementById("result").innerText.replace('$', '');
             navigator.clipboard.writeText(totalPrice).then(function() {
                 alert("Total Price copied to clipboard: " + totalPrice);
             }, function(err) {
@@ -100,7 +103,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {
-            updateTableHighlight(1); // Default to Sydney column
+            updateTableHighlight(1);
         });
     </script>
 </head>
@@ -110,11 +113,6 @@
     
     <div class="column-select">
         <p>Select PROJECT LOCATION by clicking column title: <span id="selectedColumn">Sydney</span></p>
-    </div>
-
-    <div class="result">
-        Total Price: <span id="resultTop">$0.00</span>
-        <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
     </div>
 
     <table>
@@ -132,8 +130,8 @@
         </tr>
         <tr><td><button onclick="showPrice('MDP14-SS', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$80.00', 'Wgong, Newcstle, ACT, SA': '$90.00', 'NSW, VIC': '$90.00', 'Cairns, Twnsville': '$90.00', 'QLD': '$90.00', 'Perth': '$110.00', 'WA, NT': '$110.00', 'TAS': '$140.00' })">MDP14-SS</button></td><td>$55.00</td><td>$80.00</td><td>$90.00</td><td>$90.00</td><td>$90.00</td><td>$90.00</td><td>$110.00</td><td>$110.00</td><td>$140.00</td></tr>
         <tr><td>EXPANSION TANK</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-        <tr><td><button onclick="showPrice('10AF35', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$50.00', 'Wgong, Newcstle, ACT, SA': '$55.00', 'NSW, VIC': '$80.00', 'Cairns, Twnsville': '$65.00', 'QLD': '$90.00', 'Perth': '$65.00', 'WA, NT': '$100.00', 'TAS': '$100.00' })">10AF35</button></td><td>$55.00</td><td>$50.00</td><td>$55.00</td><td>$80.00</td><td>$65.00</td><td>$90.00</td><td>$65.00</td><td>$100.00</td><td>$100.00
-        <tr><td><button onclick="showPrice('10AF80', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$70.00', 'Wgong, Newcstle, ACT, SA': '$90.00', 'NSW, VIC': '$155.00', 'Cairns, Twnsville': '$115.00', 'QLD': '$185.00', 'Perth': '$105.00', 'WA, NT': '$210.00', 'TAS': '$200.00' })">10AF80</button></td><td>$55.00</td><td>$70.00</td><td>$90.00</td><td>$155.00</td><td>$115.00</td><td>$185.00</td><td>$105.00</td><td>$210.00</td><td>$200.00</td></tr>
+        <tr><td><button onclick="showPrice('10AF35', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$50.00', 'Wgong, Newcstle, ACT, SA': '$55.00', 'NSW, VIC': '$80.00', 'Cairns, Twnsville': '$65.00', 'QLD': '$90.00', 'Perth': '$65.00', 'WA, NT': '$100.00', 'TAS': '$100.00' })">10AF35</button></td><td>$55.00</td><td>$50.00</td><td>$55.00</td><td>$80.00</td><td>$65.00</td><td>$90.00</td><td>$65.00</td><td>$100.00</td><td>$100.00</td></tr>
+    <tr><td><button onclick="showPrice('10AF80', { 'Sydney': '$55.00', 'Melb./ Brisbane': '$70.00', 'Wgong, Newcstle, ACT, SA': '$90.00', 'NSW, VIC': '$155.00', 'Cairns, Twnsville': '$115.00', 'QLD': '$185.00', 'Perth': '$105.00', 'WA, NT': '$210.00', 'TAS': '$200.00' })">10AF80</button></td><td>$55.00</td><td>$70.00</td><td>$90.00</td><td>$155.00</td><td>$115.00</td><td>$185.00</td><td>$105.00</td><td>$210.00</td><td>$200.00</td></tr>
         <tr><td><button onclick="showPrice('10AF150', { 'Sydney': '$75.00', 'Melb./ Brisbane': '$85.00', 'Wgong, Newcstle, ACT, SA': '$100.00', 'NSW, VIC': '$225.00', 'Cairns, Twnsville': '$160.00', 'QLD': '$250.00', 'Perth': '$150.00', 'WA, NT': '$300.00', 'TAS': '$270.00' })">10AF150</button></td><td>$75.00</td><td>$85.00</td><td>$100.00</td><td>$225.00</td><td>$160.00</td><td>$250.00</td><td>$150.00</td><td>$300.00</td><td>$270.00</td></tr>
         <tr><td><button onclick="showPrice('10AF300', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$130.00', 'Wgong, Newcstle, ACT, SA': '$195.00', 'NSW, VIC': '$410.00', 'Cairns, Twnsville': '$275.00', 'QLD': '$505.00', 'Perth': '$255.00', 'WA, NT': '$600.00', 'TAS': '$570.00' })">10AF300</button></td><td>$150.00</td><td>$130.00</td><td>$195.00</td><td>$410.00</td><td>$275.00</td><td>$505.00</td><td>$255.00</td><td>$600.00</td><td>$570.00</td></tr>
         <tr><td><button onclick="showPrice('10AF500', { 'Sydney': '$150.00', 'Melb./ Brisbane': '$180.00', 'Wgong, Newcstle, ACT, SA': '$225.00', 'NSW, VIC': '$630.00', 'Cairns, Twnsville': '$415.00', 'QLD': '$695.00', 'Perth': '$380.00', 'WA, NT': '$855.00', 'TAS': '$765.00' })">10AF500</button></td><td>$150.00</td><td>$180.00</td><td>$225.00</td><td>$630.00</td><td>$415.00</td><td>$695.00</td><td>$380.00</td><td>$855.00</td><td>$765.00</td></tr>
@@ -164,9 +162,10 @@
         <tr><td><button onclick="showPrice('132kW', { 'Sydney': '$350.00', 'Melb./ Brisbane': '$765.00', 'Wgong, Newcstle, ACT, SA': '$1,105.00', 'NSW, VIC': '$1,655.00', 'Cairns, Twnsville': '$1,895.00', 'QLD': '$3,220.00', 'Perth': '$1,855.00', 'WA, NT': '$4,275.00', 'TAS': '$3,430.00' })">132kW</button></td><td>$350.00</td><td>$765.00</td><td>$1,105.00</td><td>$1,655.00</td><td>$1,895.00</td><td>$3,220.00</td><td>$1,855.00</td><td>$4,275.00</td><td>$3,430.00</td></tr>
     </table>
     
-    <div class="result">Total Price: <span id="result">$0.00</span>
+    <div class="fixed-summary">
+        <div>Total Price: <span id="result">$0.00</span></div>
         <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        <div class="summary-item" id="summary">Clicked Models:</div>
     </div>
-    <div class="summary"><span id="summary"></span></div>
 </body>
 </html>
