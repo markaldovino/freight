@@ -3,6 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pump Calculators</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .highlight-hex {
+            color: blue;
+        }
+        .highlight-equip {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pump Frequency Calculator moved to the top -->
+    <div class="container">
+        <h1>Pump Frequency Calculator</h1>
+        <div class="input-group">
+            <label for="motor-type">Select Motor Type:</label>
+            <select id="motor-type" onchange="calculateBoth()">
+                <option value="4">4-pole motor</option>
+                <option value="2">2-pole motor</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="rpm">Enter Motor Speed (RPM):</label>
+            <input type="number" id="rpm" placeholder="Enter RPM" oninput="calculateFrequency()">
+        </div>
+        <div class="input-group">
+            <label for="frequency">Enter Frequency (Hz):</label>
+            <input type="number" id="frequency" placeholder="Enter Frequency" oninput="calculateRPM()">
+        </div>
+        <div class="result" id="frequency-result"></div>
+    </div>
+
+    <div class="container">
+        <h1>Warranty Cost Calculator</h1>
+        <!-- Dropdown for HEX or EQUIP selection -->
+        <div class="input-group">
+            <label for="warranty-type">Select Warranty Type:</label>
+            <select id="warranty-type" onchange="updateWarrantyLabel()">
+                <option value="HEX">HEX</option>
+                <option value="EQUIP">EQUIP</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="subtotalPrice">Enter Subtotal Price:</label>
+            <input type="number" id="subtotalPrice" step="0.01" placeholder="Enter subtotal price" oninput="updateBasePrice()" />
+        </div>
+        <div class="input-group">
+            <label for="freightCost">Enter Freight Cost:</label>
+            <input type="number" id="freightCost" step="0.01" placeholder="Enter freight cost" oninput="updateBasePrice()" />
+        </div>
+        <div class="input-group">
+            <label for="basePrice">Calculated Base Price:</label>
+            <input type="number" id="basePrice" step="0.01" placeholder="Base price will appear here" readonly />
+        </div>
+        <div class="input-group">
+            <label for="numYears">Enter Number of Years (Minimum 2):</label>
+            <input type="number" id="numYears" min="2" placeholder="Enter years" />
+        </div>
+        <button onclick="calculateWarrantyCost()">Calculate Warranty Cost</button>
+        <h3>Warranty Results:</h3>
+        <div id="warranty-result"></div>
+    </div>
+
+    <script>
+        // Function to display HEX or EQUIP in the result area
+        function updateWarrantyLabel() {
+            const warrantyType = document.getElementById('warranty-type').value;
+            const result = document.getElementById('warranty-result');
+            result.className = warrantyType === 'HEX' ? 'highlight-hex' : 'highlight-equip';
+        }
+
+        // Update Base Price when Subtotal or Freight Cost changes
+        function updateBasePrice() {
+            const subtotalPrice = parseFloat(document.getElementById('subtotalPrice').value) || 0;
+            const freightCost = parseFloat(document.getElementById('freightCost').value) || 0;
+
+            if (freightCost < 0) {
+                alert("Freight cost cannot be negative.");
+                document.getElementById('freightCost').value = '';
+                return;
+            }
+
+            const basePrice = subtotalPrice - freightCost;
+            document.getElementById('basePrice').value = basePrice >= 0 ? basePrice.toFixed(2) : 0;
+        }
+
+        // Warranty Cost Calculator function
+        function calculateWarrantyCost() {
+            const basePrice = parseFloat(document.getElementById('basePrice').value);
+            const numYears = parseInt(document.getElementById('numYears').value);
+            const warrantyType = document.getElementById('warranty-type').value;
+
+            if (isNaN(basePrice) || basePrice <= 0) {
+                document.getElementById('warranty-result').innerHTML = "Please enter valid prices.";
+                return;
+            }
+            if (isNaN(numYears) || numYears < 2) {
+                document.getElementById('warranty-result').innerHTML = "Please enter a valid number of years (minimum 2).";
+                return;
+            }
+
+            let totalCost = 0;
+            let breakdown = `<strong>Adjusted Base Price:</strong> ${basePrice.toFixed(2)}<br>`;
+            
+            if (warrantyType === 'HEX') {
+                // HEX calculation
+                const cost2ndYear = basePrice * 0.015;
+                totalCost = cost2ndYear;
+                breakdown += `<strong>Cost for 2nd Year (1.5%):</strong> ${cost2ndYear.toFixed(2)}<br>`;
+
+                for (let year = 3; year <= numYears; year++) {
+                    const additionalCost = basePrice * 0.025;
+                    totalCost += additionalCost;
+                    breakdown += `<strong>Cost for ${year} Year (2.5%):</strong> ${additionalCost.toFixed(2)}<br>`;
+                }
+            } else if (warrantyType === 'EQUIP') {
+                // EQUIP calculation
+                for (let year = 3; year <= numYears; year++) {
+                    const additionalCost = basePrice * 0.05;
+                    totalCost += additionalCost;
+                    breakdown += `<strong>Cost for ${year} Year (5%):</strong> ${additionalCost.toFixed(2)}<br>`;
+                }
+            }
+
+            breakdown += `<br><strong>Total Additional Cost for ${numYears} Years:</strong> ${totalCost.toFixed(2)}`;
+            document.getElementById('warranty-result').innerHTML = breakdown;
+        }
+
+        // Pump Frequency Calculator functions
+        function calculateFrequency() {
+            const motorType = document.getElementById('motor-type').value;
+            const rpm = document.getElementById('rpm').value;
+            let frequency;
+
+            if (motorType === '2') {
+                frequency = rpm / (2900 / 50);
+            } else if (motorType === '4') {
+                frequency = rpm / (1450 / 50);
+            }
+
+            document.getElementById('frequency').value = frequency.toFixed(2) || '';
+            document.getElementById('frequency-result').innerText = `Frequency: ${frequency.toFixed(2)} Hz`;
+        }
+
+        function calculateRPM() {
+            const motorType = document.getElementById('motor-type').value;
+            const frequency = document.getElementById('frequency').value;
+            let rpm;
+
+            if (motorType === '2') {
+                rpm = frequency * (2900 / 50);
+            } else if (motorType === '4') {
+                rpm = frequency * (1450 / 50);
+            }
+
+            document.getElementById('rpm').value = rpm.toFixed(0) || '';
+            document.getElementById('frequency-result').innerText = `RPM: ${rpm.toFixed(0)}`;
+        }
+
+        function calculateBoth() {
+            calculateFrequency();
+            calculateRPM();
+        }
+    </script>
+<!-- Freight Pricing Matrix -->
+<div class="container">
+    <h1>Freight Pricing Matrix</h1>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freight Pricing Matrix</title>
     <style>
         table {
@@ -167,5 +371,9 @@
         <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
         <div class="summary-item" id="summary">Clicked Models:</div>
     </div>
+</body>
+</html>
+</div>
+
 </body>
 </html>
